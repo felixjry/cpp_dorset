@@ -1,0 +1,130 @@
+#include <iostream>
+#include <vector>
+#include <algorithm>
+#include <random>
+
+using namespace std;
+
+struct Question {
+    string question;
+    string options[4];
+    char correctAnswer;
+};
+
+struct QuizTopic {
+    string topicName;
+    vector<Question> questions;
+};
+
+void shuffleQuestions(vector<Question>& questions) {
+    random_device rd;
+    mt19937 g(rd());
+    shuffle(questions.begin(), questions.end(), g);
+}
+
+char getValidAnswer() {
+    char answer;
+    while (true) {
+        cout << "Your answer (A, B, C, D): ";
+        cin >> answer;
+        answer = toupper(answer);
+
+        if (cin.fail() || cin.peek() != '\n' || (answer < 'A' || answer > 'D')) {
+            cout << "Invalid input! Please enter A, B, C, or D." << endl;
+            cin.clear();  // Réinitialise l'état d'erreur de cin
+            cin.ignore(numeric_limits<streamsize>::max(), '\n');  // Vide le buffer d'entrée
+        } else {
+            return answer;
+        }
+    }
+}
+
+
+int playQuiz(const QuizTopic& quiz) {
+    cout << "\nStarting quiz: " << quiz.topicName << "\n";
+    vector<Question> questions = quiz.questions;
+    shuffleQuestions(questions);
+    int score = 0;
+    
+    for (size_t i = 0; i < questions.size(); i++) {
+        cout << i + 1 << ". " << questions[i].question << endl;
+        cout << "A. " << questions[i].options[0] << endl;
+        cout << "B. " << questions[i].options[1] << endl;
+        cout << "C. " << questions[i].options[2] << endl;
+        cout << "D. " << questions[i].options[3] << endl;
+        
+        char answer = getValidAnswer();
+        
+        if (answer == questions[i].correctAnswer) {
+            cout << "Correct!\n\n";
+            score++;
+        } else {
+            cout << "Wrong! The correct answer was " << questions[i].correctAnswer << "\n\n";
+        }
+    }
+    return score;
+}
+
+int main() {
+    vector<QuizTopic> quizzes = {
+        {"Animals - Animal Classification", {
+    {"Which of these is a mammal?", {"Shark", "Dolphin", "Crocodile", "Eagle"}, 'B'},
+    {"Which animal lays eggs?", {"Dog", "Cat", "Platypus", "Dolphin"}, 'C'},
+    {"What type of animal is a Komodo dragon?", {"Mammal", "Bird", "Reptile", "Amphibian"}, 'C'},
+    {"Which animal is an amphibian?", {"Frog", "Snake", "Parrot", "Whale"}, 'A'},
+    {"Which of these animals is a marsupial?", {"Koala", "Tiger", "Lion", "Elephant"}, 'A'}  // New question
+}},
+{"Animals - Diet & Feeding Habits", {
+    {"What do herbivores eat?", {"Plants","Meat", "Both", "Insects"}, 'A'},
+    {"Which animal is a carnivore?", {"Cow", "Lion", "Horse", "Elephant"}, 'B'},
+    {"What is an omnivore?", {"An animal that eats both plants and meat", "An animal that eats only fish", "An animal that eats only insects", "An animal that eats only fruit"}, 'A'},
+    {"Which of these animals mainly eats bamboo?", {"Giraffe", "Panda", "Tiger", "Bear"}, 'B'},
+    {"What do carnivores typically eat?", {"Plants", "Fruit", "Insects","Meat" }, 'D'}  // New question
+}},
+{"Animals - Natural Habitats", {
+    {"Where do penguins live?", {"Desert", "Forest", "Polar regions", "Mountains"}, 'C'},
+    {"Which of these animals is found in the Amazon rainforest?", {"Kangaroo", "Jaguar", "Polar Bear", "Camel"}, 'B'},
+    {"Which animal is best adapted to desert life?", {"Penguin", "Frog", "Camel", "Bear"}, 'C'},
+    {"Where would you find a dolphin?", {"Ocean", "Jungle", "Savannah", "Mountain"}, 'A'},
+    {"Which of these animals lives in the Arctic?", {"Lion", "Polar Bear", "Kangaroo", "Elephant"}, 'B'}  // New question
+}},
+{"Animals - Unique Abilities", {
+    {"Which animal can regenerate lost limbs?", {"Lizard", "Starfish", "Snake", "Dolphin"}, 'B'},
+    {"What is the fastest bird?", {"Sparrow", "Eagle", "Peregrine Falcon", "Ostrich"}, 'C'},
+    {"Which animal has the best sense of smell?", {"Dog", "Cat", "Elephant","Shark" }, 'D'},
+    {"Which mammal can fly?", {"Bat", "Flying Squirrel", "Eagle", "Owl"}, 'A'},
+    {"Which animal can produce light?", {"Firefly", "Elephant", "Dolphin", "Shark"}, 'A'}  // New question
+}}
+    };
+    
+    cout << "Choose a quiz:\n";
+    for (size_t i = 0; i < quizzes.size(); i++) {
+        cout << i + 1 << ". " << quizzes[i].topicName << endl;
+    }
+
+    int choice;
+while (true) {
+    cout << "Enter the number of the quiz you want to play: ";
+    cin >> choice;
+
+    if (cin.fail() || choice < 1 || choice > quizzes.size()) {
+        cout << "Invalid choice! Please enter a valid number.\n";
+        cin.clear();  // Réinitialise l'état d'erreur de cin
+        cin.ignore(numeric_limits<streamsize>::max(), '\n');  // Vide le buffer d'entrée
+    } else {
+        break;
+    }
+}
+
+
+    int score = playQuiz(quizzes[choice - 1]);
+    cout << "\nYou finished the quiz: " << quizzes[choice - 1].topicName << "\n";
+    cout << "Your score: " << score << " / " << quizzes[choice - 1].questions.size() << "\n";
+    
+    if ((double)score / quizzes[choice - 1].questions.size() * 100 >= 60) {
+        cout << "Congratulations! You passed!\n";
+    } else {
+        cout << "You failed. Try again!\n";
+    }
+    return 0;
+}
